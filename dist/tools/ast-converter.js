@@ -19,7 +19,20 @@ export class AstConverterTool {
     constructor() {
         this.name = "tool-for-ast-convertor";
         this.description = "将小程序代码用 Babel 转换后，放进taroConvert文件夹中";
-        this.inputSchema = AstConverterInputSchema.shape;
+        this.inputSchema = {
+            type: "object",
+            properties: {
+                sourcePath: {
+                    type: "string",
+                    description: "源代码路径，默认为当前目录"
+                },
+                outputPath: {
+                    type: "string",
+                    description: "输出路径，默认为 taroConvert"
+                }
+            },
+            additionalProperties: false
+        };
     }
     /**
      * 执行AST转换工具

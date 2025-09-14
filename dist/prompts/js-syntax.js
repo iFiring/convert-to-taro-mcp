@@ -19,7 +19,20 @@ export class JsSyntaxPrompt {
     constructor() {
         this.name = "prompt-for-js-syntax-convertor";
         this.description = "js 文件的语法转换方案";
-        this.arguments = JsSyntaxPromptInputSchema.shape;
+        this.arguments = {
+            type: "object",
+            properties: {
+                filePath: {
+                    type: "string",
+                    description: "要转换的JS文件路径"
+                },
+                targetRule: {
+                    type: "string",
+                    description: "特定的转换规则"
+                }
+            },
+            additionalProperties: false
+        };
         this.syntaxFilePath = "./prompts/js-syntax-convertor.md";
     }
     /**

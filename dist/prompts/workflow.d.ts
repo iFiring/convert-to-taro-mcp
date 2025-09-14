@@ -22,7 +22,14 @@ export declare class WorkflowPrompt {
     readonly name = "prompt-for-convertor-workflow";
     readonly description = "\u6307\u5BFC\u6574\u4E2A\u8F6C\u6362\u5DE5\u4F5C\u6D41";
     readonly arguments: {
-        step: z.ZodOptional<z.ZodString>;
+        type: string;
+        properties: {
+            step: {
+                type: string;
+                description: string;
+            };
+        };
+        additionalProperties: boolean;
     };
     private readonly workflowFilePath;
     /**

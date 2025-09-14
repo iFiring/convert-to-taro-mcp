@@ -22,7 +22,20 @@ const AstConverterInputSchema = z.object({
 export class AstConverterTool {
   public readonly name = "tool-for-ast-convertor";
   public readonly description = "将小程序代码用 Babel 转换后，放进taroConvert文件夹中";
-  public readonly inputSchema = AstConverterInputSchema.shape;
+  public readonly inputSchema = {
+    type: "object",
+    properties: {
+      sourcePath: {
+        type: "string",
+        description: "源代码路径，默认为当前目录"
+      },
+      outputPath: {
+        type: "string", 
+        description: "输出路径，默认为 taroConvert"
+      }
+    },
+    additionalProperties: false
+  };
 
   /**
    * 执行AST转换工具

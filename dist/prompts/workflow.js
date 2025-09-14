@@ -18,7 +18,16 @@ export class WorkflowPrompt {
     constructor() {
         this.name = "prompt-for-convertor-workflow";
         this.description = "指导整个转换工作流";
-        this.arguments = WorkflowPromptInputSchema.shape;
+        this.arguments = {
+            type: "object",
+            properties: {
+                step: {
+                    type: "string",
+                    description: "当前执行步骤"
+                }
+            },
+            additionalProperties: false
+        };
         this.workflowFilePath = "./prompts/convertor-workflow.md";
     }
     /**

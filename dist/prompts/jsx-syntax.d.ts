@@ -25,8 +25,18 @@ export declare class JsxSyntaxPrompt {
     readonly name = "prompt-for-jsx-syntax-convertor";
     readonly description = "jsx \u6587\u4EF6\u7684\u8BED\u6CD5\u8F6C\u6362\u65B9\u6848";
     readonly arguments: {
-        filePath: z.ZodOptional<z.ZodString>;
-        targetRule: z.ZodOptional<z.ZodString>;
+        type: string;
+        properties: {
+            filePath: {
+                type: string;
+                description: string;
+            };
+            targetRule: {
+                type: string;
+                description: string;
+            };
+        };
+        additionalProperties: boolean;
     };
     private readonly syntaxFilePath;
     /**

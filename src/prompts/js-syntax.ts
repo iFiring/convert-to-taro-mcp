@@ -22,7 +22,20 @@ const JsSyntaxPromptInputSchema = z.object({
 export class JsSyntaxPrompt {
   public readonly name = "prompt-for-js-syntax-convertor";
   public readonly description = "js 文件的语法转换方案";
-  public readonly arguments = JsSyntaxPromptInputSchema.shape;
+  public readonly arguments = {
+    type: "object",
+    properties: {
+      filePath: {
+        type: "string",
+        description: "要转换的JS文件路径"
+      },
+      targetRule: {
+        type: "string",
+        description: "特定的转换规则"
+      }
+    },
+    additionalProperties: false
+  };
 
   private readonly syntaxFilePath = "./prompts/js-syntax-convertor.md";
 

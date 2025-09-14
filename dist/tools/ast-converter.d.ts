@@ -25,8 +25,18 @@ export declare class AstConverterTool {
     readonly name = "tool-for-ast-convertor";
     readonly description = "\u5C06\u5C0F\u7A0B\u5E8F\u4EE3\u7801\u7528 Babel \u8F6C\u6362\u540E\uFF0C\u653E\u8FDBtaroConvert\u6587\u4EF6\u5939\u4E2D";
     readonly inputSchema: {
-        sourcePath: z.ZodOptional<z.ZodString>;
-        outputPath: z.ZodOptional<z.ZodString>;
+        type: string;
+        properties: {
+            sourcePath: {
+                type: string;
+                description: string;
+            };
+            outputPath: {
+                type: string;
+                description: string;
+            };
+        };
+        additionalProperties: boolean;
     };
     /**
      * 执行AST转换工具

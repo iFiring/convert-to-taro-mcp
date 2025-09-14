@@ -19,7 +19,20 @@ export class ScssSyntaxPrompt {
     constructor() {
         this.name = "prompt-for-scss-syntax-convertor";
         this.description = "scss 文件的语法转换方案";
-        this.arguments = ScssSyntaxPromptInputSchema.shape;
+        this.arguments = {
+            type: "object",
+            properties: {
+                filePath: {
+                    type: "string",
+                    description: "要转换的SCSS文件路径"
+                },
+                targetRule: {
+                    type: "string",
+                    description: "特定的转换规则"
+                }
+            },
+            additionalProperties: false
+        };
         this.syntaxFilePath = "./prompts/scss-syntax-convertor.md";
     }
     /**

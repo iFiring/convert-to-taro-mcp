@@ -19,7 +19,20 @@ export class JsxSyntaxPrompt {
     constructor() {
         this.name = "prompt-for-jsx-syntax-convertor";
         this.description = "jsx 文件的语法转换方案";
-        this.arguments = JsxSyntaxPromptInputSchema.shape;
+        this.arguments = {
+            type: "object",
+            properties: {
+                filePath: {
+                    type: "string",
+                    description: "要转换的JSX文件路径"
+                },
+                targetRule: {
+                    type: "string",
+                    description: "特定的转换规则"
+                }
+            },
+            additionalProperties: false
+        };
         this.syntaxFilePath = "./prompts/jsx-syntax-convertor.md";
     }
     /**

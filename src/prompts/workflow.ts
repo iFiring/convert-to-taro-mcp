@@ -21,7 +21,16 @@ const WorkflowPromptInputSchema = z.object({
 export class WorkflowPrompt {
   public readonly name = "prompt-for-convertor-workflow";
   public readonly description = "指导整个转换工作流";
-  public readonly arguments = WorkflowPromptInputSchema.shape;
+  public readonly arguments = {
+    type: "object",
+    properties: {
+      step: {
+        type: "string",
+        description: "当前执行步骤"
+      }
+    },
+    additionalProperties: false
+  };
 
   private readonly workflowFilePath = "./prompts/convertor-workflow.md";
 

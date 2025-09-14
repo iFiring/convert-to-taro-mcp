@@ -22,7 +22,20 @@ const ScssSyntaxPromptInputSchema = z.object({
 export class ScssSyntaxPrompt {
   public readonly name = "prompt-for-scss-syntax-convertor";
   public readonly description = "scss 文件的语法转换方案";
-  public readonly arguments = ScssSyntaxPromptInputSchema.shape;
+  public readonly arguments = {
+    type: "object",
+    properties: {
+      filePath: {
+        type: "string",
+        description: "要转换的SCSS文件路径"
+      },
+      targetRule: {
+        type: "string",
+        description: "特定的转换规则"
+      }
+    },
+    additionalProperties: false
+  };
 
   private readonly syntaxFilePath = "./prompts/scss-syntax-convertor.md";
 

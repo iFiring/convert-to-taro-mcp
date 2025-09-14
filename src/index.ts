@@ -172,9 +172,7 @@ async function main(): Promise<void> {
 }
 
 // 如果直接运行此文件，则启动服务器
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch((error) => {
+main().catch((error) => {
     console.error("服务器启动失败:", error);
     process.exit(1);
-  });
-}
+});

@@ -35,7 +35,7 @@ export class ScssSyntaxPrompt {
             // 根据参数生成特定内容
             const content = this.generateContentForFile(syntaxContent, args.filePath, args.targetRule);
             return {
-                description: "scss 文件的语法转换方案，从当前目录中 prompts/scss-syntax-convertor.md 获取",
+                description: "scss 文件的语法转换方案",
                 content,
             };
         }

@@ -35,7 +35,7 @@ export class JsSyntaxPrompt {
             // 根据参数生成特定内容
             const content = this.generateContentForFile(syntaxContent, args.filePath, args.targetRule);
             return {
-                description: "js 文件的语法转换方案，从当前目录中 prompts/js-syntax-convertor.md 获取",
+                description: "js 文件的语法转换方案",
                 content,
             };
         }

@@ -34,7 +34,7 @@ export class WorkflowPrompt {
             // 根据步骤参数生成特定内容
             const content = this.generateContentForStep(workflowContent, args.step);
             return {
-                description: "指导整个转换工作流，从当前目录中 convertor-workflow.md 获取",
+                description: "指导整个转换工作流",
                 content,
             };
         }

@@ -1,9 +1,11 @@
 {
   "name": "convert-to-taro-mcp",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "用于将微信小程序代码转换为Taro框架的MCP服务",
   "main": "dist/index.js",
   "type": "module",
+  "homepage": "https://github.com/iFiring/convert-to-taro-mcp",
+  "bugs": "https://github.com/iFiring/convert-to-taro-mcp/issues",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",

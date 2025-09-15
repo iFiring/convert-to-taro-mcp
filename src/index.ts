@@ -1,178 +1,238 @@
 #!/usr/bin/env node
 
-/**
- * Convert to Taro MCP Server
- * 将微信小程序代码转换为Taro框架的MCP服务
- */
-
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
   CallToolRequestSchema,
-  ErrorCode,
-  ListPromptsRequestSchema,
-  ListResourcesRequestSchema,
   ListToolsRequestSchema,
-  McpError,
-  GetPromptRequestSchema,
-  ReadResourceRequestSchema,
-} from "@modelcontextprotocol/sdk/types.js";
+  Tool
+} from '@modelcontextprotocol/sdk/types.js';
 
-import { z } from "zod";
-import { ToolManager } from "./tools/index.js";
-import { ResourceManager } from "./resources/index.js";
-import { PromptManager } from "./prompts/index.js";
+import { convertorWorkflow } from './tools/convertor-workflow.js';
+import { astConvertor, type AstConvertorOptions } from './tools/ast-convertor.js';
+import { scanFiles } from './tools/scan-files.js';
+import { jsxSyntaxConvertor } from './tools/jsx-syntax-convertor.js';
+import { scssSyntaxConvertor } from './tools/scss-syntax-convertor.js';
 
-/**
- * MCP服务器类
- * 负责处理工具调用、资源访问和提示词管理
- */
-class ConvertToTaroMcpServer {
-  private server: Server;
-  private toolManager: ToolManager;
-  private resourceManager: ResourceManager;
-  private promptManager: PromptManager;
-
-  constructor() {
-    this.server = new Server(
-      {
-        name: "convert-to-taro-mcp",
-        version: "1.0.0",
-      },
-      {
-        capabilities: {
-          tools: {},
-          resources: {},
-          prompts: {},
+// 定义工具列表
+const tools: Tool[] = [
+  {
+    name: 'convertor-workflow',
+    description: '开始小程序转Taro的工作流',
+    inputSchema: {
+      type: 'object',
+      properties: {},
+      additionalProperties: false
+    }
+  },
+  {
+    name: 'ast-convertor',
+    description: '对小程序代码进行预处理',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        sourcePath: {
+          type: 'string',
+          description: '源代码路径，默认为当前目录'
         },
-      }
-    );
-
-    this.toolManager = new ToolManager();
-    this.resourceManager = new ResourceManager();
-    this.promptManager = new PromptManager();
-
-    this.setupToolHandlers();
-    this.setupResourceHandlers();
-    this.setupPromptHandlers();
+        outputPath: {
+          type: 'string',
+          description: '输出路径，默认为 taroConvert'
+        }
+      },
+      additionalProperties: false
+    }
+  },
+  {
+    name: 'scan-files',
+    description: '扫描taroConvert文件夹下的文件结构',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        sourcePath: {
+          type: 'string',
+          description: '项目根目录路径，默认为当前工作目录'
+        }
+      },
+      additionalProperties: false
+    }
+  },
+  {
+    name: 'jsx-syntax-convertor',
+    description: 'jsx 文件的语法转换方案',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        sourcePath: {
+          type: 'string',
+          description: '项目根目录路径，默认为当前工作目录'
+        }
+      },
+      additionalProperties: false
+    }
+  },
+  {
+    name: 'scss-syntax-convertor',
+    description: 'scss 文件的语法转换方案',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        sourcePath: {
+          type: 'string',
+          description: '项目根目录路径，默认为当前工作目录'
+        }
+      },
+      additionalProperties: false
+    }
   }
+];
 
-  /**
-   * 设置工具处理器
-   */
-  private setupToolHandlers(): void {
-    this.server.setRequestHandler(ListToolsRequestSchema, async () => {
-      return {
-        tools: this.toolManager.listTools(),
-      };
-    });
+// 创建服务器实例
+const server = new Server(
+  {
+    name: 'convert-to-taro-mcp',
+    version: '1.0.0'
+  },
+  {
+    capabilities: {
+      tools: {}
+    }
+  }
+);
 
-    this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
-      try {
-        const result = await this.toolManager.callTool(
-          request.params.name,
-          request.params.arguments || {}
-        );
+// 注册工具列表处理器
+server.setRequestHandler(ListToolsRequestSchema, async () => {
+  return {
+    tools
+  };
+});
+
+// 注册工具调用处理器
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  const { name, arguments: args } = request.params;
+
+  try {
+    switch (name) {
+      case 'convertor-workflow': {
+        const result = await convertorWorkflow();
         return {
           content: [
             {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
+              type: 'text',
+              text: result.success
+                ? `工作流程:\n\n${result.workflow}`
+                : `错误: ${result.error}`
+            }
+          ]
         };
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        throw new McpError(ErrorCode.InternalError, `工具执行失败: ${errorMessage}`);
       }
-    });
-  }
 
-  /**
-   * 设置资源处理器
-   */
-  private setupResourceHandlers(): void {
-    this.server.setRequestHandler(ListResourcesRequestSchema, async () => {
-      return {
-        resources: this.resourceManager.listResources(),
-      };
-    });
-
-    this.server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
-      try {
-        const content = await this.resourceManager.readResource(request.params.uri);
+      case 'ast-convertor': {
+        const options: AstConvertorOptions = {
+          sourcePath: args?.sourcePath as string,
+          outputPath: args?.outputPath as string
+        };
+        const result = await astConvertor(options);
         return {
-          contents: [
+          content: [
             {
-              uri: request.params.uri,
-              mimeType: "text/plain",
-              text: content,
-            },
-          ],
+              type: 'text',
+              text: result.success
+                ? `${result.message}\n输出路径: ${result.outputPath || 'taroConvert'}`
+                : `错误: ${result.error}`
+            }
+          ]
         };
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        throw new McpError(ErrorCode.InternalError, `资源读取失败: ${errorMessage}`);
       }
-    });
-  }
 
-  /**
-   * 设置提示词处理器
-   */
-  private setupPromptHandlers(): void {
-    this.server.setRequestHandler(ListPromptsRequestSchema, async () => {
-      return {
-        prompts: this.promptManager.listPrompts(),
-      };
-    });
+      case 'scan-files': {
+        const options = {
+          sourcePath: args?.sourcePath as string
+        };
+        const result = await scanFiles(options);
+        if (result.success) {
+          const { jsx, scss } = result.scannedFiles;
+          const summary = `扫描完成!\n\n找到的文件:\n- JSX文件(包含JS): ${jsx.length}个\n- SCSS文件: ${scss.length}个\n\n已生成 scanned-files.json 文件`;
+          return {
+            content: [
+              {
+                type: 'text',
+                text: summary
+              }
+            ]
+          };
+        } else {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `错误: ${result.error}`
+              }
+            ]
+          };
+        }
+      }
 
-    this.server.setRequestHandler(GetPromptRequestSchema, async (request) => {
-      try {
-        const prompt = await this.promptManager.getPrompt(
-          request.params.name,
-          request.params.arguments || {}
-        );
+      case 'jsx-syntax-convertor': {
+        const options = {
+          sourcePath: args?.sourcePath as string
+        };
+        const result = await jsxSyntaxConvertor(options);
         return {
-          description: prompt.description,
-          messages: [
+          content: [
             {
-              role: "user",
-              content: {
-                type: "text",
-                text: prompt.content,
-              },
-            },
-          ],
+              type: 'text',
+              text: result.success 
+                ? `JSX语法转换方案:\n\n${result.content}`
+                : `错误: ${result.error}`
+            }
+          ]
         };
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        throw new McpError(ErrorCode.InternalError, `提示词获取失败: ${errorMessage}`);
       }
-    });
+
+      case 'scss-syntax-convertor': {
+        const options = {
+          sourcePath: args?.sourcePath as string
+        };
+        const result = await scssSyntaxConvertor(options);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: result.success 
+                ? `SCSS语法方案:\n\n${result.content}`
+                : `错误: ${result.error}`
+            }
+          ]
+        };
+      }
+
+      default:
+        throw new Error(`未知的工具: ${name}`);
+    }
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `执行工具 ${name} 时发生错误: ${error instanceof Error ? error.message : String(error)}`
+        }
+      ],
+      isError: true
+    };
   }
-
-  /**
-   * 启动服务器
-   */
-  async run(): Promise<void> {
-    const transport = new StdioServerTransport();
-    await this.server.connect(transport);
-    console.error("Convert to Taro MCP server running on stdio");
-  }
-}
-
-/**
- * 主函数
- * 启动MCP服务器
- */
-async function main(): Promise<void> {
-  const server = new ConvertToTaroMcpServer();
-  await server.run();
-}
-
-// 如果直接运行此文件，则启动服务器
-main().catch((error) => {
-    console.error("服务器启动失败:", error);
-    process.exit(1);
 });
+
+// 启动服务器
+async function main() {
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+  console.error('Convert-to-Taro MCP 服务器已启动');
+}
+
+main().catch((error) => {
+  console.error('启动服务器失败:', error);
+  process.exit(1);
+});
+
+export { server };

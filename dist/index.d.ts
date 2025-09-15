@@ -1,7 +1,26 @@
 #!/usr/bin/env node
-/**
- * Convert to Taro MCP Server
- * 将微信小程序代码转换为Taro框架的MCP服务
- */
-export {};
-//# sourceMappingURL=index.d.ts.map
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+declare const server: Server<{
+    method: string;
+    params?: {
+        [x: string]: unknown;
+        _meta?: {
+            [x: string]: unknown;
+            progressToken?: string | number | undefined;
+        } | undefined;
+    } | undefined;
+}, {
+    method: string;
+    params?: {
+        [x: string]: unknown;
+        _meta?: {
+            [x: string]: unknown;
+        } | undefined;
+    } | undefined;
+}, {
+    [x: string]: unknown;
+    _meta?: {
+        [x: string]: unknown;
+    } | undefined;
+}>;
+export { server };

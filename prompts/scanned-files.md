@@ -2,7 +2,6 @@
 
 ## jsx 文件
 - [ ] ./taroConvert/pages/home/index.jsx
-- [ ] ./taroConvert/pages/order/index.jsx
 - [ ] ./taroConvert/components/modal/index.jsx
 
 
@@ -13,4 +12,3 @@
 ## scss 文件
 - [] ./taroConvert/pages/home/index.scss
 - [] ./taroConvert/pages/order/index.scss
-- [] ./taroConvert/components/modal/index.scss

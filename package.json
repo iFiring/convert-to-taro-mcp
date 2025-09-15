@@ -1,36 +1,34 @@
 {
   "name": "convert-to-taro-mcp",
-  "version": "0.0.1",
-  "description": "MCP服务：将微信小程序代码转换为Taro框架的代码",
+  "version": "0.0.2",
+  "description": "用于将微信小程序代码转换为Taro框架的MCP服务",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
-    "prepare": "pnpm run build"
+    "prepare": "npm run build"
   },
   "bin": {
     "convert-to-taro-mcp": "dist/index.js"
   },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.3",
-    "lodash": "^4.17.21",
-    "zod": "^3.23.8",
-    "glob": "^11.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^22.10.1",
-    "@types/lodash": "^4.17.12",
-    "typescript": "^5.7.2"
-  },
-  "packageManager": "pnpm@9.15.0",
   "keywords": [
     "mcp",
     "taro",
-    "miniprogram",
+    "wechat-miniprogram",
     "converter"
   ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
 }

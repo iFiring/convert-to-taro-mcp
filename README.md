@@ -1,34 +1,59 @@
-# Convert to Taro MCP 服务
+# Convert-to-Taro MCP
 
-将微信小程序代码转换为Taro框架的MCP服务。
+一个基于 Model Context Protocol (MCP) 的服务，用于将微信小程序代码转换为 Taro 框架代码。
 
-## 功能概述
+## 功能特性
 
-这个MCP服务提供了完整的微信小程序到Taro框架的转换流程，包括：
+这个 MCP 服务提供了 5 个工具来帮助完成小程序到 Taro 的转换工作流：
 
-1. **AST转换工具** - 执行`pnpx tarojs-cli-convertor`命令进行初步转换
-2. **文件扫描资源** - 扫描转换后的文件结构并生成待处理文件列表
-3. **语法转换提示词** - 提供JSX、JS、SCSS文件的语法转换指导
+### 1. convertor-workflow
+- **描述**：开始小程序转Taro的工作流
+- **功能**：从 `prompts/convertor-workflow.md` 读取完整的工作流程指导
+
+### 2. ast-convertor
+- **描述**：对小程序代码进行预处理
+- **功能**：执行 `pnpx tarojs-cli-convertor` 命令，将小程序代码用 Babel 转换后放入 `taroConvert` 文件夹
+- **参数**：
+  - `sourcePath` (可选): 源代码路径，默认为当前目录
+  - `outputPath` (可选): 输出路径，默认为 taroConvert
+
+### 3. scan-files
+- **描述**：扫描 taroConvert 文件夹下的文件结构
+- **功能**：扫描 `*.jsx`、`*.js`、`*.scss` 文件（跳过 `*.config.js` 和 `app.*.*` 文件），JS文件合并到JSX分类中，生成 `scanned-files.json`
+- **参数**：
+  - `sourcePath` (可选): 项目根目录路径，默认为当前工作目录
+
+### 4. jsx-syntax-convertor
+- **描述**：JSX 文件的语法转换方案
+- **功能**：解析 `scanned-files.json` 中的jsx文件列表，动态填入转换规则模板，返回完整的转换指导
+- **参数**：
+  - `sourcePath` (可选): 项目根目录路径，默认为当前工作目录
+
+### 5. scss-syntax-convertor
+- **描述**：SCSS 文件的语法转换方案
+- **功能**：解析 `scanned-files.json` 中的scss文件列表，动态填入转换规则模板，返回完整的转换指导
+- **参数**：
+  - `sourcePath` (可选): 项目根目录路径，默认为当前工作目录
 
 ## 安装和使用
 
-### 1. 安装依赖
+### 前置要求
+- Node.js >= 18
+- pnpm 包管理器
 
+### 安装依赖
 ```bash
 pnpm install
 ```
 
-### 2. 构建项目
-
+### 构建项目
 ```bash
 pnpm run build
 ```
 
-### 3. 作为MCP服务使用
-
-在你的MCP客户端配置中添加：
-
+### 作为 MCP 服务运行
 ```json
+# 构建后运行
 {
   "mcpServers": {
     "convert-to-taro": {
@@ -39,98 +64,38 @@ pnpm run build
 }
 ```
 
-或者直接使用：
-
+# 或者通过 npx 运行
 ```bash
 npx convert-to-taro-mcp
 ```
 
-## MCP组件
+## 工作流程
 
-### 工具 (Tools)
-
-#### `tool-for-ast-convertor`
-- **描述**: 将小程序代码用Babel转换后，放进taroConvert文件夹中
-- **功能**: 执行`pnpx tarojs-cli-convertor`命令
-- **参数**: 
-  - `sourcePath` (可选): 源代码路径，默认为当前目录
-  - `outputPath` (可选): 输出路径，默认为taroConvert
-
-### 资源 (Resources)
-
-#### `resource-for-scan-files`
-- **描述**: 扫描taroConvert文件夹下的文件结构
-- **功能**: 扫描*.jsx、*.js、*.scss文件并生成scanned-files.md
-- **URI**: `resource://scan-files`
-
-### 提示词 (Prompts)
-
-#### `prompt-for-convertor-workflow`
-- **描述**: 指导整个转换工作流
-- **来源**: `prompts/convertor-workflow.md`
-
-#### `prompt-for-jsx-syntax-convertor`
-- **描述**: JSX文件的语法转换方案
-- **来源**: `prompts/jsx-syntax-convertor.md`
-
-#### `prompt-for-js-syntax-convertor`
-- **描述**: JS文件的语法转换方案
-- **来源**: `prompts/js-syntax-convertor.md`
-
-#### `prompt-for-scss-syntax-convertor`
-- **描述**: SCSS文件的语法转换方案
-- **来源**: `prompts/scss-syntax-convertor.md`
-
-## 转换流程
-
-1. **初始化转换**: 使用`tool-for-ast-convertor`执行Babel AST转换
-2. **扫描文件**: 使用`resource-for-scan-files`扫描转换后的文件
-3. **语法转换**: 根据生成的文件列表，使用对应的语法转换提示词进行手动转换
-4. **完成验证**: 确保所有文件转换完成并通过语法检查
+1. **开始工作流**: 使用 `convertor-workflow` 获取完整的转换指导
+2. **预处理代码**: 使用 `ast-convertor` 对小程序代码进行初步转换
+3. **扫描文件**: 使用 `scan-files` 扫描转换后的文件结构并生成 `scanned-files.json`
+4. **语法转换**: 分别使用 `jsx-syntax-convertor`、`scss-syntax-convertor` 获取动态的转换规则（包含具体文件列表）
+5. **逐步转换**: 根据转换规则逐一处理 `scanned-files.json` 中的文件
+6. **完成转换**: 所有文件处理完成后输出转换报告
 
 ## 项目结构
 
 ```
-src/
-├── index.ts              # MCP服务入口
-├── types/                # 类型定义
-├── tools/                # 工具实现
-│   ├── index.ts         # 工具管理器
-│   └── ast-converter.ts # AST转换工具
-├── resources/            # 资源实现
-│   ├── index.ts         # 资源管理器
-│   └── file-scanner.ts  # 文件扫描资源
-└── prompts/              # 提示词实现
-    ├── index.ts         # 提示词管理器
-    ├── workflow.ts      # 工作流提示词
-    ├── jsx-syntax.ts    # JSX语法转换提示词
-    ├── js-syntax.ts     # JS语法转换提示词
-    └── scss-syntax.ts   # SCSS语法转换提示词
-```
-
-## 开发
-
-### 开发模式
-
-```bash
-pnpm run dev
-```
-
-### 构建
-
-```bash
-pnpm run build
+convert-to-taro-mcp/
+├── src/
+│   ├── tools/           # 各个工具的实现
+│   ├── types.ts         # 类型定义
+│   └── index.ts         # MCP 服务器主文件
+├── prompts/             # 工作流和转换规则文档
+├── package.json
+├── tsconfig.json
+└── README.md
 ```
 
 ## 技术栈
 
-- TypeScript
-- Node.js
-- Model Context Protocol SDK
-- Zod (数据验证)
-- Lodash (工具函数)
-- Glob (文件匹配)
+- **运行时**: Node.js + TypeScript
+- **协议**: Model Context Protocol (MCP)
+- **通信**: stdio 协议
+- **包管理**: pnpm
 
-## 许可证
-
-MIT

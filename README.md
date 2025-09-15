@@ -63,6 +63,9 @@ pnpm run build
 }
 ```
 
+用 AI IDE (Cursor/Trae)打开小程序项目，Agent 模式下，输入框输入：请用 convert-to-taro-mcp 将小程序转换成Taro项目。
+优先选择 Claude，Qwen 等优秀模型，不要选择 Auto 模式。
+
 # 或者通过 npx 运行
 ```bash
 # 构建后运行

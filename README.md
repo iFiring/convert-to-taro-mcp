@@ -53,7 +53,6 @@ pnpm run build
 
 ### 作为 MCP 服务运行
 ```json
-# 构建后运行
 {
   "mcpServers": {
     "convert-to-taro": {
@@ -66,6 +65,7 @@ pnpm run build
 
 # 或者通过 npx 运行
 ```bash
+# 构建后运行
 npx convert-to-taro-mcp
 ```
 
